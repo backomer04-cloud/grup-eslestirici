@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PES Grup Eşleştirici</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a12;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00d4ff, #7b2ffc, #ff006e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 8px;
+            font-size: 1rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #00d4ff;
+        }
+
+        .btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+            color: white;
+            box-shadow: 0 8px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 212, 255, 0.5);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00ff88, #00d4ff);
+            color: #0a0a12;
+            box-shadow: 0 8px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 255, 136, 0.5);
+        }
+
+        .btn-danger {
+            background: rgba(255, 0, 110, 0.15);
+            color: #ff006e;
+            border: 2px solid rgba(255, 0, 110, 0.2);
+        }
+
+        .btn-danger:hover {
+            background: rgba(255, 0, 110, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .options-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .option-btn {
+            padding: 12px 24px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .option-btn:hover {
+            border-color: rgba(0, 212, 255, 0.4);
+            background: rgba(0, 212, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .option-btn.selected {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.15);
+            color: #00d4ff;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.15);
+        }
+
+        .player-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        .player-input {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .player-input label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .player-input input {
+            padding: 10px 14px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .player-input input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+        }
+
+        .player-input input.error {
+            border-color: #ff006e;
+        }
+
+        .groups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+            margin: 15px 0;
+        }
+
+        .group-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            animation: slideUp 0.4s ease;
+            transition: all 0.3s ease;
+        }
+
+        .group-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .group-card .group-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #00d4ff;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .group-card .group-title .badge {
+            font-size: 0.7rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .group-card .group-players {
+            list-style: none;
+        }
+
+        .group-card .group-players li {
+            padding: 4px 0;
+            color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .group-card .group-players li::before {
+            content: '👤';
+        }
+
+        .summary-box {
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px 20px;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .summary-box .item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        .summary-box .item .num {
+            color: #00d4ff;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .section-title h2 {
+            margin-bottom: 0;
+        }
+
+        .btn-group-top {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.8rem; }
+            .card { padding: 20px; }
+            .options-group { gap: 6px; }
+            .option-btn { padding: 10px 16px; font-size: 0.9rem; min-width: 60px; }
+            .btn { padding: 12px 20px; font-size: 0.9rem; }
+            .groups-grid { grid-template-columns: 1fr; }
+            .player-inputs { grid-template-columns: 1fr; }
+            .summary-box { flex-direction: column; align-items: center; }
+            .section-title { flex-direction: column; align-items: stretch; }
+            .btn-group-top { justify-content: center; }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 { font-size: 1.5rem; }
+            .card { padding: 16px; }
+            .option-btn { padding: 8px 12px; font-size: 0.8rem; }
+            .btn { padding: 10px 16px; font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- BAŞLIK -->
+        <div class="header">
+            <h1>GRUP EŞLEŞTİRİCİ</h1>
+            <p>Arkadaşlarını gruplandır ve rastgele eşleştir</p>
+        </div>
+
+        <!-- 1. AYARLAR -->
+        <div id="settingsSection" class="card">
+            <h2>📋 Ayarlar</h2>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; margin-bottom:8px; color:rgba(255,255,255,0.7); font-weight:600;">Grup başına kaç kişi?</label>
+                <div class="options-group" id="groupSizeOptions">
+                    <button class="option-btn" data-value="2" onclick="selectGroupSize(2)">2 Kişi</button>
+                    <button class="option-btn" data-value="3" onclick="selectGroupSize(3)">3 Kişi</button>
+                    <button class="option-btn" data-value="4" onclick="selectGroupSize(4)">4 Kişi</button>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; margin-bottom:8px; color:rgba(255,255,255,0.7); font-weight:600;">Toplam kaç kişi oynayacak?</label>
+                <div class="options-group" id="playerCountOptions">
+                    <button class="option-btn" data-value="2" onclick="selectPlayerCount(2)">2</button>
+                    <button class="option-btn" data-value="3" onclick="selectPlayerCount(3)">3</button>
+                    <button class="option-btn" data-value="4" onclick="selectPlayerCount(4)">4</button>
+                    <button class="option-btn" data-value="5" onclick="selectPlayerCount(5)">5</button>
+                    <button class="option-btn" data-value="6" onclick="selectPlayerCount(6)">6</button>
+                    <button class="option-btn" data-value="7" onclick="selectPlayerCount(7)">7</button>
+                    <button class="option-btn" data-value="8" onclick="selectPlayerCount(8)">8</button>
+                </div>
+            </div>
+
+            <div id="settingsSummary" style="text-align:center; padding:10px; color:rgba(255,255,255,0.5);">
+                <span id="summaryText">Henüz seçim yapılmadı</span>
+            </div>
+
+            <button class="btn btn-primary" onclick="goToPlayers()" id="nextBtn" disabled style="width:100%;">
+                Devam Et →
+            </button>
+        </div>
+
+        <!-- 2. OYUNCU İSİMLERİ -->
+        <div id="playersSection" class="card hidden">
+            <h2>👤 Oyuncu İsimleri</h2>
+            <div id="playerInputs" class="player-inputs"></div>
+            <button class="btn btn-success" onclick="generateGroups()" style="width:100%;">
+                🎲 Grupları Oluştur
+            </button>
+        </div>
+
+        <!-- 3. SADECE GRUPLAR -->
+        <div id="resultSection" class="card hidden">
+            <div class="section-title">
+                <h2 id="resultTitle">📊 Gruplar</h2>
+                <div class="btn-group-top">
+                    <button class="btn btn-secondary" onclick="reshufflePlayers()">🔄 Grupları Yeniden Karıştır</button>
+                    <button class="btn btn-danger" onclick="resetAll()">🔴 Baştan Başla</button>
+                </div>
+            </div>
+
+            <div class="summary-box" id="summaryBox">
+                <div class="item">👥 Toplam: <span class="num" id="totalPlayers">0</span></div>
+                <div class="item">📦 Grup: <span class="num" id="totalGroups">0</span></div>
+            </div>
+
+            <div id="groupsDisplay" class="groups-grid"></div>
+        </div>
+
+    </div>
+
+    <script>
+        // ==============================================
+        // STATE
+        // ==============================================
+
+        let state = {
+            groupSize: null,
+            playerCount: null,
+            players: [],
+            groups: []
+        };
+
+        let selectedGroupSize = null;
+        let selectedPlayerCount = null;
+
+        // ==============================================
+        // AYARLAR
+        // ==============================================
+
+        function selectGroupSize(size) {
+            selectedGroupSize = size;
+            document.querySelectorAll('#groupSizeOptions .option-btn').forEach(b => {
+                b.classList.toggle('selected', parseInt(b.dataset.value) === size);
+            });
+            updateSummary();
+        }
+
+        function selectPlayerCount(count) {
+            selectedPlayerCount = count;
+            document.querySelectorAll('#playerCountOptions .option-btn').forEach(b => {
+                b.classList.toggle('selected', parseInt(b.dataset.value) === count);
+            });
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const summary = document.getElementById('summaryText');
+            const btn = document.getElementById('nextBtn');
+
+            if (selectedGroupSize && selectedPlayerCount) {
+                const groupCount = calculateGroupCount(selectedPlayerCount, selectedGroupSize);
+                summary.textContent = `${selectedPlayerCount} kişi, ${selectedGroupSize}'li gruplar → ${groupCount} grup oluşacak`;
+                btn.disabled = false;
+            } else {
+                summary.textContent = 'Henüz seçim yapılmadı';
+                btn.disabled = true;
+            }
+        }
+
+        function calculateGroupCount(playerCount, groupSize) {
+            let count = 0;
+            let remaining = playerCount;
+            while (remaining > 0) {
+                let size = Math.min(groupSize, remaining);
+                if (remaining - size === 1 && count > 0) {
+                    size = Math.min(remaining, groupSize);
+                }
+                count++;
+                remaining -= size;
+            }
+            return count;
+        }
+
+        function goToPlayers() {
+            if (!selectedGroupSize || !selectedPlayerCount) return;
+
+            state.groupSize = selectedGroupSize;
+            state.playerCount = selectedPlayerCount;
+
+            const container = document.getElementById('playerInputs');
+            container.innerHTML = '';
+            for (let i = 1; i <= selectedPlayerCount; i++) {
+                const div = document.createElement('div');
+                div.className = 'player-input';
+                div.innerHTML = `
+                            <label>Oyuncu ${i}</label>
+                            <input type="text" id="player${i}" placeholder="İsmi girin..." maxlength="20">
+                        `;
+                container.appendChild(div);
+            }
+
+            document.getElementById('settingsSection').classList.add('hidden');
+            document.getElementById('playersSection').classList.remove('hidden');
+            document.getElementById('resultSection').classList.add('hidden');
+        }
+
+        // ==============================================
+        // GRUP OLUŞTUR
+        // ==============================================
+
+        function getPlayerNames() {
+            const names = [];
+            for (let i = 1; i <= state.playerCount; i++) {
+                const input = document.getElementById(`player${i}`);
+                if (!input) continue;
+                const name = input.value.trim();
+                if (!name) {
+                    input.classList.add('error');
+                    alert(`Lütfen Oyuncu ${i} için bir isim girin!`);
+                    return null;
+                }
+                input.classList.remove('error');
+                names.push(name);
+            }
+
+            const unique = new Set(names);
+            if (unique.size !== names.length) {
+                alert('⚠️ Aynı isim birden fazla kez girildi!');
+                return null;
+            }
+
+            return names;
+        }
+
+        function generateGroups() {
+            const names = getPlayerNames();
+            if (!names) return;
+
+            state.players = names;
+            state.groups = shufflePlayersToGroups(names, state.groupSize);
+
+            showGroups();
+
+            document.getElementById('playersSection').classList.add('hidden');
+            document.getElementById('resultSection').classList.remove('hidden');
+            document.getElementById('resultTitle').textContent = '📊 Gruplar';
+        }
+
+        function shufflePlayersToGroups(players, groupSize) {
+            const shuffled = [...players];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            const groups = [];
+            let remaining = shuffled.length;
+            let index = 0;
+
+            while (remaining > 0) {
+                let size = Math.min(groupSize, remaining);
+                if (remaining - size === 1 && groups.length > 0) {
+                    size = Math.min(remaining, groupSize);
+                }
+                const group = [];
+                for (let i = 0; i < size && index < shuffled.length; i++) {
+                    group.push(shuffled[index]);
+                    index++;
+                }
+                groups.push(group);
+                remaining -= size;
+            }
+
+            if (groups.length > 1 && groups[groups.length - 1].length === 1 && groups[groups.length - 2].length < groupSize) {
+                const lastPlayer = groups[groups.length - 1][0];
+                groups[groups.length - 2].push(lastPlayer);
+                groups.pop();
+            }
+
+            return groups;
+        }
+
+        // ==============================================
+        // GRUPLARI GÖSTER
+        // ==============================================
+
+        function showGroups() {
+            const container = document.getElementById('groupsDisplay');
+            container.innerHTML = '';
+
+            state.groups.forEach((group, index) => {
+                const card = document.createElement('div');
+                card.className = 'group-card';
+
+                card.innerHTML = `
+                            <div class="group-title">
+                                <span>GRUP ${index + 1}</span>
+                                <span class="badge">${group.length} kişi</span>
+                            </div>
+                            <ul class="group-players">
+                                ${group.map(p => `<li>${p}</li>`).join('')}
+                            </ul>
+                        `;
+                container.appendChild(card);
+            });
+
+            document.getElementById('totalPlayers').textContent = state.players.length;
+            document.getElementById('totalGroups').textContent = state.groups.length;
+        }
+
+        // ==============================================
+        // GRUPLARI YENİDEN KARIŞTIR
+        // ==============================================
+
+        function reshufflePlayers() {
+            if (state.players.length === 0) return;
+
+            state.groups = shufflePlayersToGroups(state.players, state.groupSize);
+
+            showGroups();
+            document.getElementById('resultTitle').textContent = '📊 Gruplar (Yeniden Karıştırıldı)';
+        }
+
+        // ==============================================
+        // SIFIRLA
+        // ==============================================
+
+        function resetAll() {
+            if (confirm('Baştan başlamak istediğine emin misin?')) {
+                state = {
+                    groupSize: null,
+                    playerCount: null,
+                    players: [],
+                    groups: []
+                };
+                selectedGroupSize = null;
+                selectedPlayerCount = null;
+
+                document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+                document.getElementById('summaryText').textContent = 'Henüz seçim yapılmadı';
+                document.getElementById('nextBtn').disabled = true;
+
+                document.getElementById('settingsSection').classList.remove('hidden');
+                document.getElementById('playersSection').classList.add('hidden');
+                document.getElementById('resultSection').classList.add('hidden');
+
+                document.getElementById('playerInputs').innerHTML = '';
+                document.getElementById('groupsDisplay').innerHTML = '';
+            }
+        }
+
+        // ==============================================
+        // BAŞLANGIÇ
+        // ==============================================
+
+  
+    </script>
+</body>
+</html>
